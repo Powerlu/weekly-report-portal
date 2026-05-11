@@ -1,0 +1,57 @@
+[
+  {
+    "project_name": "项目管理系统",
+    "task_name": "用户权限模块开发",
+    "module": "后端",
+    "target_date": "2026-05-15",
+    "assignee": "路俊博",
+    "status": "进行中",
+    "achievements": "完成了用户角色权限的设计和数据库表结构创建，实现了基础的 RBAC 权限模型。完成了用户登录、注册接口的开发和测试。",
+    "blockers": "数据库迁移脚本在测试环境执行时遇到外键约束问题",
+    "support_needed": "需要 DBA 协助检查测试环境数据库配置"
+  },
+  {
+    "project_name": "项目管理系统",
+    "task_name": "项目看板前端开发",
+    "module": "前端",
+    "target_date": "2026-05-10",
+    "assignee": "王荣欣",
+    "status": "延期",
+    "achievements": "完成了看板页面的基础布局和设计，实现了拖拽功能原型。使用了 Vue 3 + Element Plus 组件库。",
+    "blockers": "拖拽库与当前 Vue 版本存在兼容性问题，导致部分功能异常",
+    "support_needed": "需要前端架构师协助选型合适的拖拽组件库"
+  },
+  {
+    "project_name": "智能简历解析",
+    "task_name": "简历解析算法优化",
+    "module": "算法",
+    "target_date": "2026-05-08",
+    "assignee": "路俊博",
+    "status": "已完成",
+    "achievements": "优化了 NLP 模型，简历解析准确率从 85% 提升到 92%。新增了对 PDF、Word 格式的批量解析支持。处理了 500+ 份测试简历，效果良好。",
+    "blockers": "",
+    "support_needed": ""
+  },
+  {
+    "project_name": "智能简历解析",
+    "task_name": "前端展示页面开发",
+    "module": "前端",
+    "target_date": "2026-05-12",
+    "assignee": "王荣欣",
+    "status": "阻塞",
+    "achievements": "完成了简历解析结果的可视化展示页面设计，包括关键词高亮、评分展示等功能。使用了 ECharts 进行数据可视化。",
+    "blockers": "后端 API 接口未完成，无法获取真实的解析数据",
+    "support_needed": "需要后端开发尽快完成简历解析结果 API"
+  },
+  {
+    "project_name": "面试微信小程序",
+    "task_name": "小程序 UI 设计",
+    "module": "设计",
+    "target_date": "2026-05-20",
+    "assignee": "王荣欣",
+    "status": "进行中",
+    "achievements": "完成了小程序的主要页面设计，包括首页、面试列表、个人中心等。使用了微信小程序的设计规范。",
+    "blockers": "",
+    "support_needed": ""
+  }
+]
