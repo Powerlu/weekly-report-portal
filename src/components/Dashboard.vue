@@ -24,7 +24,7 @@
       </div>
     </header>
 
-    <!-- 主内容区：flex-1 撑满剩余视口高度 -->
+    <!-- 主内容区 -->
     <main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full overflow-hidden">
       <!-- 项目 Tab 导航 -->
       <ProjectTabs
@@ -34,7 +34,7 @@
       />
 
       <div class="mt-6 grid grid-cols-1 lg:grid-cols-4 gap-6" style="height: calc(100vh - 180px);">
-        <!-- 左列：红区预警面板（固定高度 + 内部滚动） -->
+        <!-- 左列：红区预警面板 -->
         <div class="lg:col-span-1 min-h-0">
           <BlockerAlert
             :blockedTasks="blockedTasks"
@@ -42,7 +42,7 @@
           />
         </div>
 
-        <!-- 右列：任务矩阵列表（固定高度 + 内部滚动） -->
+        <!-- 右列：任务矩阵列表 -->
         <div class="lg:col-span-3 min-h-0">
           <TaskList
             :tasks="filteredTasks"
@@ -70,7 +70,6 @@ const blockerAlert = ref(null)
 // 计算属性
 const projects = computed(() => {
   const fromTasks = new Set(tasks.value.map(task => task.project_name))
-  // 合并手动添加的项目（独立于任务数据）
   try {
     const manual = JSON.parse(localStorage.getItem('weekly-report-manual-projects') || '[]')
     manual.forEach(p => fromTasks.add(p))
@@ -81,12 +80,10 @@ const projects = computed(() => {
 const filteredTasks = computed(() => {
   let result = tasks.value
 
-  // 按项目筛选
   if (activeProject.value) {
     result = result.filter(task => task.project_name === activeProject.value)
   }
 
-  // 按状态筛选
   if (statusFilter.value !== 'all') {
     if (statusFilter.value === 'unfinished') {
       result = result.filter(task => task.status !== '已完成')
@@ -105,10 +102,8 @@ const blockedTasks = computed(() => {
 // 复制到剪贴板
 const copySummary = async () => {
   try {
-    // 构建摘要文本
     let summary = '【周报摘要】\n\n'
 
-    // 添加红区预警内容
     if (blockedTasks.value.length > 0) {
       summary += '⚠️ 红区预警（堵点/需协调事项）:\n'
       blockedTasks.value.forEach(task => {
@@ -125,12 +120,9 @@ const copySummary = async () => {
     }
 
     summary += `\n📊 当前共 ${tasks.value.length} 个任务，其中 ${tasks.value.filter(t => t.status === '已完成').length} 个已完成，${tasks.value.filter(t => t.status === '进行中').length} 个进行中\n`
-
     summary += '\n📎 详细周报链接: ' + window.location.origin
 
-    // 使用 Clipboard API 复制
     await navigator.clipboard.writeText(summary)
-
     alert('✅ 周报摘要已复制到剪贴板！可直接粘贴到微信群')
   } catch (error) {
     console.error('复制失败:', error)
@@ -138,29 +130,28 @@ const copySummary = async () => {
   }
 }
 
-// 生命周期
-onMounted(async () => {
-  await loadData()
-})
-
-// 加载数据（优先 localStorage，其次静态文件）
+// 加载数据（优先 localStorage，其次静态文件；过滤王荣欣）
 const loadData = async () => {
   try {
-    // 1. 优先从 localStorage 读取（Admin 编辑后的数据）
+    let rawTasks = []
+
     const savedData = localStorage.getItem('weekly-report-tasks')
     if (savedData) {
-      tasks.value = JSON.parse(savedData)
-      console.log('从 localStorage 加载数据:', tasks.value.length, '条')
+      rawTasks = JSON.parse(savedData)
+      console.log('从 localStorage 加载数据:', rawTasks.length, '条')
     } else {
-      // 2. 首次访问：从静态文件加载
       const response = await fetch('/src/assets/data.json')
-      tasks.value = await response.json()
-      // 保存到 localStorage 供后续使用
-      localStorage.setItem('weekly-report-tasks', JSON.stringify(tasks.value))
-      console.log('从静态文件加载数据:', tasks.value.length, '条')
+      rawTasks = await response.json()
+      console.log('从静态文件加载数据:', rawTasks.length, '条')
     }
 
-    // 默认选择第一个项目
+    // 过滤王荣欣
+    tasks.value = rawTasks.filter(t => t.assignee !== '王荣欣')
+    console.log('过滤王荣欣后:', tasks.value.length, '条')
+
+    // 写回 localStorage 保持干净
+    localStorage.setItem('weekly-report-tasks', JSON.stringify(tasks.value))
+
     if (projects.value.length > 0) {
       activeProject.value = projects.value[0]
     }
@@ -168,4 +159,8 @@ const loadData = async () => {
     console.error('加载数据失败:', error)
   }
 }
+
+onMounted(async () => {
+  await loadData()
+})
 </script>
