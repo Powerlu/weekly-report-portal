@@ -53,5 +53,16 @@
     "achievements": "完成了小程序的主要页面设计，包括首页、面试列表、个人中心等。使用了微信小程序的设计规范。",
     "blockers": "",
     "support_needed": ""
+  },
+  {
+    "project_name": "项目管理系统",
+    "task_name": "6969",
+    "module": "前端",
+    "target_date": "2026-05-13",
+    "assignee": "路",
+    "status": "进行中",
+    "achievements": "阿迪斯",
+    "blockers": "打赏",
+    "support_needed": "打赏"
   }
 ]
