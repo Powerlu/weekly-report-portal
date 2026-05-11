@@ -135,10 +135,25 @@ const copySummary = async () => {
 
 // 生命周期
 onMounted(async () => {
+  await loadData()
+})
+
+// 加载数据（优先 localStorage，其次静态文件）
+const loadData = async () => {
   try {
-    // 加载模拟数据
-    const response = await fetch('/src/assets/data.json')
-    tasks.value = await response.json()
+    // 1. 优先从 localStorage 读取（Admin 编辑后的数据）
+    const savedData = localStorage.getItem('weekly-report-tasks')
+    if (savedData) {
+      tasks.value = JSON.parse(savedData)
+      console.log('从 localStorage 加载数据:', tasks.value.length, '条')
+    } else {
+      // 2. 首次访问：从静态文件加载
+      const response = await fetch('/src/assets/data.json')
+      tasks.value = await response.json()
+      // 保存到 localStorage 供后续使用
+      localStorage.setItem('weekly-report-tasks', JSON.stringify(tasks.value))
+      console.log('从静态文件加载数据:', tasks.value.length, '条')
+    }
 
     // 默认选择第一个项目
     if (projects.value.length > 0) {
@@ -147,5 +162,5 @@ onMounted(async () => {
   } catch (error) {
     console.error('加载数据失败:', error)
   }
-})
+}
 </script>

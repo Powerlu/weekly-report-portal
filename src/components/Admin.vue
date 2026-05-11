@@ -73,7 +73,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import GitHubConfig from './GitHubConfig.vue'
 import DataEditor from './DataEditor.vue'
 
@@ -93,6 +93,14 @@ const githubConfig = ref({
 
 // 任务数据
 const tasks = ref([])
+
+// 监听任务数据变化，自动同步到 localStorage
+watch(tasks, (newTasks) => {
+  if (newTasks && newTasks.length > 0) {
+    localStorage.setItem('weekly-report-tasks', JSON.stringify(newTasks))
+    console.log('任务数据已同步到 localStorage:', newTasks.length, '条')
+  }
+}, { deep: true })
 
 // 检查是否已认证
 onMounted(() => {
@@ -114,8 +122,16 @@ onMounted(() => {
 // 加载任务数据
 const loadTasks = async () => {
   try {
-    const response = await fetch('/src/assets/data.json')
-    tasks.value = await response.json()
+    // 优先从 localStorage 读取
+    const savedTasks = localStorage.getItem('weekly-report-tasks')
+    if (savedTasks) {
+      tasks.value = JSON.parse(savedTasks)
+    } else {
+      // 首次访问：从静态文件加载
+      const response = await fetch('/src/assets/data.json')
+      tasks.value = await response.json()
+      localStorage.setItem('weekly-report-tasks', JSON.stringify(tasks.value))
+    }
   } catch (error) {
     console.error('加载数据失败:', error)
   }
