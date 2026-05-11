@@ -69,8 +69,13 @@ const blockerAlert = ref(null)
 
 // 计算属性
 const projects = computed(() => {
-  const projectSet = new Set(tasks.value.map(task => task.project_name))
-  return Array.from(projectSet)
+  const fromTasks = new Set(tasks.value.map(task => task.project_name))
+  // 合并手动添加的项目（独立于任务数据）
+  try {
+    const manual = JSON.parse(localStorage.getItem('weekly-report-manual-projects') || '[]')
+    manual.forEach(p => fromTasks.add(p))
+  } catch {}
+  return Array.from(fromTasks).sort()
 })
 
 const filteredTasks = computed(() => {
