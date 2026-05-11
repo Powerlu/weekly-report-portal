@@ -1,8 +1,8 @@
 <template>
-  <div class="bg-white shadow rounded-lg">
-    <div class="px-4 py-5 sm:p-6">
+  <div class="bg-white shadow rounded-lg flex flex-col h-full">
+    <div class="px-4 py-5 sm:px-6 flex-shrink-0">
       <!-- 快速筛选按钮 -->
-      <div class="flex flex-wrap gap-2 mb-6">
+      <div class="flex flex-wrap gap-2 mb-4">
         <button
           @click="$emit('update:statusFilter', 'all')"
           :class="[
@@ -37,8 +37,10 @@
           只看堵点
         </button>
       </div>
+    </div>
 
-      <!-- 任务列表 -->
+    <!-- 任务列表：可滚动区域 -->
+    <div class="flex-1 overflow-y-auto px-4 pb-5 sm:px-6 custom-scrollbar">
       <div v-if="tasks.length === 0" class="text-center py-8">
         <p class="text-gray-500">暂无任务数据</p>
       </div>
@@ -72,7 +74,7 @@
             </span>
           </div>
 
-          <!-- 任务详情 (移动端优化：垂直堆叠) -->
+          <!-- 任务详情 -->
           <div class="space-y-2 mb-3 text-xs text-gray-600">
             <div class="flex justify-between">
               <span class="font-medium">负责人:</span>
@@ -84,12 +86,12 @@
             </div>
           </div>
 
-          <!-- 工作成果（可折叠，移动端优化：增大触摸区域） -->
+          <!-- 工作成果（可折叠） -->
           <div v-if="task.achievements" class="mb-3">
             <p class="text-xs font-medium text-gray-700 mb-1">工作成果:</p>
             <div
               :ref="el => setAchievementRef(index, el)"
-              class="text-xs text-gray-600 leading-relaxed overflow-hidden break-words"
+              class="text-xs text-gray-600 leading-relaxed overflow-hidden break-words whitespace-pre-wrap"
               :style="{ maxHeight: expandedTasks[index] ? 'none' : '2.5rem', lineHeight: '1.5' }"
             >
               {{ task.achievements }}
@@ -103,16 +105,16 @@
             </button>
           </div>
 
-          <!-- 堵点高亮 (移动端优化：增大内边距) -->
+          <!-- 堵点高亮 -->
           <div v-if="task.blockers" class="mb-2 p-3 bg-red-100 border border-red-300 rounded">
             <p class="text-xs font-medium text-red-800">堵点:</p>
-            <p class="text-xs text-red-700 mt-1 break-words">{{ task.blockers }}</p>
+            <p class="text-xs text-red-700 mt-1 whitespace-pre-wrap break-words">{{ task.blockers }}</p>
           </div>
 
           <!-- 需支持事项高亮 -->
           <div v-if="task.support_needed" class="p-3 bg-orange-100 border border-orange-300 rounded">
             <p class="text-xs font-medium text-orange-800">需支持:</p>
-            <p class="text-xs text-orange-700 mt-1 break-words">{{ task.support_needed }}</p>
+            <p class="text-xs text-orange-700 mt-1 whitespace-pre-wrap break-words">{{ task.support_needed }}</p>
           </div>
         </div>
       </div>
@@ -148,7 +150,7 @@ const setAchievementRef = (index, el) => {
 const shouldShowExpandButton = (index) => {
   const el = achievementRefs.value[index]
   if (el) {
-    return el.scrollHeight > 40 // 2.5rem = 40px
+    return el.scrollHeight > 40
   }
   return false
 }
@@ -167,3 +169,17 @@ const getStatusClass = (status) => {
   return statusMap[status] || 'bg-gray-100 text-gray-800'
 }
 </script>
+
+<style scoped>
+/* 任务列表自定义滚动条 */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 5px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #93c5fd;
+  border-radius: 3px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #f0f9ff;
+}
+</style>

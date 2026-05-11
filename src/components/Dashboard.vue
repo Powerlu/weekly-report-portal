@@ -1,7 +1,7 @@
 <template>
-  <div class="min-h-screen bg-gray-50">
+  <div class="min-h-screen bg-gray-50 flex flex-col">
     <!-- 顶部标题栏 -->
-    <header class="bg-white shadow-sm border-b border-gray-200">
+    <header class="bg-white shadow-sm border-b border-gray-200 flex-shrink-0">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center h-16">
           <h1 class="text-2xl font-bold text-gray-900">周报管理系统</h1>
@@ -24,8 +24,8 @@
       </div>
     </header>
 
-    <!-- 主内容区 -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <!-- 主内容区：flex-1 撑满剩余视口高度 -->
+    <main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full overflow-hidden">
       <!-- 项目 Tab 导航 -->
       <ProjectTabs
         :projects="projects"
@@ -33,17 +33,17 @@
         @update:activeProject="activeProject = $event"
       />
 
-      <div class="mt-6 grid grid-cols-1 lg:grid-cols-4 gap-6">
-        <!-- 红区预警面板 -->
-        <div class="lg:col-span-1">
+      <div class="mt-6 grid grid-cols-1 lg:grid-cols-4 gap-6" style="height: calc(100vh - 180px);">
+        <!-- 左列：红区预警面板（固定高度 + 内部滚动） -->
+        <div class="lg:col-span-1 min-h-0">
           <BlockerAlert
             :blockedTasks="blockedTasks"
             ref="blockerAlert"
           />
         </div>
 
-        <!-- 任务矩阵列表 -->
-        <div class="lg:col-span-3">
+        <!-- 右列：任务矩阵列表（固定高度 + 内部滚动） -->
+        <div class="lg:col-span-3 min-h-0">
           <TaskList
             :tasks="filteredTasks"
             :statusFilter="statusFilter"
@@ -126,7 +126,7 @@ const copySummary = async () => {
 
     summary += `\n📊 当前共 ${tasks.value.length} 个任务，其中 ${tasks.value.filter(t => t.status === '已完成').length} 个已完成，${tasks.value.filter(t => t.status === '进行中').length} 个进行中\n`
 
-    summary += '\n📍 详细周报链接: ' + window.location.origin
+    summary += '\n📎 详细周报链接: ' + window.location.origin
 
     // 使用 Clipboard API 复制
     await navigator.clipboard.writeText(summary)
