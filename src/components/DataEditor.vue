@@ -99,19 +99,23 @@
           </h3>
 
           <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <!-- 项目名称 -->
+            <!-- 项目名称（可输入 + 下拉选择 + 自动记忆） -->
             <div class="sm:col-span-2">
-              <label class="block text-sm font-medium text-gray-700">项目名称</label>
-              <select
-                v-model="formData.project_name"
-                class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
-              >
-                <option value="">请选择项目</option>
-                <option value="项目管理系统">项目管理系统</option>
-                <option value="面试微信小程序">面试微信小程序</option>
-                <option value="智能简历解析">智能简历解析</option>
-                <option value="面试系统-网页版">面试系统-网页版</option>
-              </select>
+              <label class="block text-sm font-medium text-gray-700">项目名称 <span class="text-gray-400 text-xs">（可直接输入新项目名，回车或失焦后自动记住）</span></label>
+              <div class="relative mt-1">
+                <input
+                  v-model="formData.project_name"
+                  type="text"
+                  list="project-list"
+                  @blur="onProjectBlur"
+                  @keydown.enter.prevent="onProjectBlur"
+                  class="mt-0 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  placeholder="输入或选择项目名称"
+                />
+                <datalist id="project-list">
+                  <option v-for="p in projectList" :key="p" :value="p" />
+                </datalist>
+              </div>
             </div>
 
             <!-- 任务名称 -->
@@ -237,7 +241,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 
 const props = defineProps({
   tasks: {
@@ -275,6 +279,32 @@ const toast = ref({
   message: '',
   type: 'success'
 })
+
+// 项目列表（从现有任务中提取 + localStorage 记忆）
+const getInitialProjects = () => {
+  const saved = localStorage.getItem('weekly-report-projects')
+  if (saved) return JSON.parse(saved)
+  // 从当前任务中提取去重
+  const fromTasks = [...new Set(props.tasks.map(t => t.project_name).filter(Boolean))]
+  return fromTasks.length > 0 ? fromTasks : ['项目管理系统', '面试微信小程序', '智能简历解析']
+}
+const projectList = ref(getInitialProjects())
+
+// 保存项目列表到 localStorage
+const saveProjectList = () => {
+  const allProjects = [...new Set([...projectList.value, ...props.tasks.map(t => t.project_name).filter(Boolean)])]
+  projectList.value = allProjects
+  localStorage.setItem('weekly-report-projects', JSON.stringify(allProjects))
+}
+
+// 项目输入框失焦或回车时，自动记忆新项目
+const onProjectBlur = () => {
+  const name = formData.value.project_name?.trim()
+  if (name && !projectList.value.includes(name)) {
+    projectList.value.push(name)
+    localStorage.setItem('weekly-report-projects', JSON.stringify(projectList.value))
+  }
+}
 
 // 计算属性：检查 GitHub 配置是否完整
 const isGitHubConfigured = computed(() => {
@@ -329,10 +359,11 @@ const saveTask = () => {
   } else {
     // 新增模式
     newTasks.push({ ...formData.value })
-    showToast('任务已添加')
+    showToast('✅ 任务已添加（别忘了点「保存并同步至 GitHub」持久化）')
   }
 
   emit('update:tasks', newTasks)
+  saveProjectList()
   closeModal()
 }
 
