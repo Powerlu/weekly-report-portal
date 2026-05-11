@@ -9,7 +9,7 @@
         <p class="text-sm text-gray-500">暂无堵点或需协调事项</p>
       </div>
 
-      <div v-else class="space-y-4">
+      <div v-else class="space-y-4 max-h-[420px] overflow-y-auto pr-2 custom-scrollbar">
         <div
           v-for="(task, index) in blockedTasks"
           :key="index"
@@ -67,3 +67,16 @@ const getStatusClass = (status) => {
   return statusMap[status] || 'bg-gray-100 text-gray-800'
 }
 </script>
+
+<style scoped>
+.custom-scrollbar::-webkit-scrollbar {
+  width: 5px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #fca5a5;
+  border-radius: 3px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #fef2f2;
+}
+</style>
